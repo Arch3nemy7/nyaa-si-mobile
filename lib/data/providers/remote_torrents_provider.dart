@@ -82,6 +82,8 @@ class RemoteTorrentsProvider {
 
     String name = '';
     String link = '';
+    String id = '';
+    String? releaseGroup;
     int comments = 0;
 
     final Element? commentsElement = cells[1].querySelector('a.comments');
@@ -95,8 +97,24 @@ class RemoteTorrentsProvider {
 
     final Element? nameElement = cells[1].querySelector('a:not(.comments)');
     if (nameElement != null) {
-      name = nameElement.text.trim();
+      final String fullName = nameElement.text.trim();
       link = 'https://nyaa.si${nameElement.attributes['href'] ?? ''}';
+
+      final String href = nameElement.attributes['href'] ?? '';
+      final RegExp idRegex = RegExp(r'/view/(\d+)');
+      final Match? idMatch = idRegex.firstMatch(href);
+      if (idMatch != null) {
+        id = idMatch.group(1) ?? '';
+      }
+
+      final RegExp releaseGroupRegex = RegExp(r'^\[([^\]]+)\]');
+      final Match? releaseGroupMatch = releaseGroupRegex.firstMatch(fullName);
+      if (releaseGroupMatch != null) {
+        releaseGroup = releaseGroupMatch.group(1);
+        name = fullName.replaceFirst(releaseGroupRegex, '').trim();
+      } else {
+        name = fullName;
+      }
     }
 
     String torrentLink = '';
@@ -125,9 +143,11 @@ class RemoteTorrentsProvider {
     final int completed = int.tryParse(cells[7].text.trim()) ?? 0;
 
     return <String, dynamic>{
+      'id': id,
       'category': category,
       'categoryImage': categoryImage,
       'name': name,
+      'releaseGroup': releaseGroup,
       'link': link,
       'comments': comments,
       'torrentLink': torrentLink,

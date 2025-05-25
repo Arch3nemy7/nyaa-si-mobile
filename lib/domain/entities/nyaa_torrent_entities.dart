@@ -1,7 +1,9 @@
 class NyaaTorrentEntity {
+  final String id;
   final String category;
   final String categoryImage;
   final String name;
+  final String? releaseGroup;
   final String link;
   final int comments;
   final String torrentLink;
@@ -15,9 +17,11 @@ class NyaaTorrentEntity {
   final String torrentStatus;
 
   NyaaTorrentEntity({
+    required this.id,
     required this.category,
     required this.categoryImage,
     required this.name,
+    this.releaseGroup,
     required this.link,
     required this.comments,
     required this.torrentLink,

@@ -2,9 +2,11 @@ import 'package:nyaa_si_mobile/domain/entities/nyaa_torrent_entities.dart';
 
 class NyaaTorrentModel extends NyaaTorrentEntity {
   NyaaTorrentModel({
+    required super.id,
     required super.category,
     required super.categoryImage,
     required super.name,
+    super.releaseGroup,
     required super.link,
     required super.comments,
     required super.torrentLink,
@@ -20,9 +22,11 @@ class NyaaTorrentModel extends NyaaTorrentEntity {
 
   factory NyaaTorrentModel.fromJson(Map<String, dynamic> json) =>
       NyaaTorrentModel(
+        id: json['id'] as String? ?? '',
         category: json['category'] as String? ?? '',
         categoryImage: json['categoryImage'] as String? ?? '',
         name: json['name'] as String? ?? '',
+        releaseGroup: json['releaseGroup'] as String?,
         link: json['link'] as String? ?? '',
         comments: json['comments'] as int? ?? 0,
         torrentLink: json['torrentLink'] as String? ?? '',
