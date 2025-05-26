@@ -175,9 +175,13 @@ class _HomePageContentState extends State<_HomePageContent> {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () {
-              context.read<HomeBloc>().add(RefreshTorrentsEvent());
+              context.read<HomeBloc>().add(const RefreshTorrentsEvent());
             },
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              size: 16,
+              color: Colors.white,
+            ),
             label: const Text('Try Again'),
             style: ElevatedButton.styleFrom(
               backgroundColor: nyaaPrimary,
@@ -236,7 +240,7 @@ class _HomePageContentState extends State<_HomePageContent> {
   Widget _buildTorrentList(List<NyaaTorrentEntity> torrents) =>
       RefreshIndicator(
         onRefresh: () async {
-          context.read<HomeBloc>().add(RefreshTorrentsEvent());
+          context.read<HomeBloc>().add(const RefreshTorrentsEvent());
         },
         color: nyaaPrimary,
         backgroundColor: Colors.white,

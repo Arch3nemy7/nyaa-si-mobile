@@ -1,12 +1,15 @@
-import 'package:nyaa_si_mobile/domain/entities/nyaa_torrent_entities.dart';
+import '../entities/nyaa_torrent_entities.dart';
 
 abstract class TorrentsRepository {
   Future<List<NyaaTorrentEntity>> fetchTorrents({
-    int page,
-    String query,
-    String filter,
-    String category,
-    String sort,
-    String order,
+    required int page,
+    required int pageSize,
+    required String searchQuery,
+    required String filterStatus,
+    required String filterCategory,
+    required String sortField,
+    required String sortOrder,
   });
+
+  Future<String> downloadTorrent({required String torrentId});
 }

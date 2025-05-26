@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:nyaa_si_mobile/core/services/network_service/api_config.dart';
-import 'package:nyaa_si_mobile/core/services/network_service/dio_client.dart';
-import 'package:nyaa_si_mobile/data/providers/remote_torrents_provider.dart';
-import 'package:nyaa_si_mobile/data/repositories/torrents_repositories_impl.dart';
-import 'package:nyaa_si_mobile/domain/repositories/torrents_repository.dart';
-import 'package:nyaa_si_mobile/domain/usecases/fetch_torrents_usecase.dart';
+
+import '../core/services/network_service/api_config.dart';
+import '../core/services/network_service/dio_client.dart';
+import '../data/providers/remote_torrents_provider.dart';
+import '../data/repositories/torrents_repositories_impl.dart';
+import '../domain/repositories/torrents_repository.dart';
+import '../domain/usecases/download_torrent_usecase.dart';
+import '../domain/usecases/fetch_torrents_usecase.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -57,9 +59,13 @@ Future<void> _initializeRepositories() async {
 }
 
 Future<void> _initializeUseCases() async {
-  serviceLocator.registerFactory<FetchTorrentsUseCase>(
-    () => FetchTorrentsUseCase(serviceLocator<TorrentsRepository>()),
-  );
+  serviceLocator
+    ..registerFactory<FetchTorrentsUseCase>(
+      () => FetchTorrentsUseCase(serviceLocator<TorrentsRepository>()),
+    )
+    ..registerFactory<DownloadTorrentUseCase>(
+      () => DownloadTorrentUseCase(serviceLocator<TorrentsRepository>()),
+    );
 }
 
 class DependencyInitializationException implements Exception {

@@ -7,18 +7,20 @@ class FetchTorrentsUseCase {
   FetchTorrentsUseCase(this._repository);
 
   Future<List<NyaaTorrentEntity>> call({
-    int page = 1,
-    String query = '',
-    String filter = '0',
-    String category = '0_0',
-    String sort = 'id',
-    String order = 'desc',
+    required int page,
+    required int pageSize,
+    required String filterStatus,
+    required String filterCategory,
+    required String searchQuery,
+    required String sortField,
+    required String sortOrder,
   }) async => await _repository.fetchTorrents(
       page: page,
-      query: query,
-      filter: filter,
-      category: category,
-      sort: sort,
-      order: order,
+      pageSize: pageSize,
+      filterStatus: filterStatus,
+      filterCategory: filterCategory,
+      searchQuery: searchQuery,
+      sortField: sortField,
+      sortOrder: sortOrder,
     );
 }

@@ -1,6 +1,6 @@
-import 'package:nyaa_si_mobile/data/providers/remote_torrents_provider.dart';
-import 'package:nyaa_si_mobile/domain/entities/nyaa_torrent_entities.dart';
-import 'package:nyaa_si_mobile/domain/repositories/torrents_repository.dart';
+import '../../domain/entities/nyaa_torrent_entities.dart';
+import '../../domain/repositories/torrents_repository.dart';
+import '../providers/remote_torrents_provider.dart';
 
 class TorrentsRepositoryImpl implements TorrentsRepository {
   final RemoteTorrentsProvider _remoteTorrentsProvider;
@@ -9,18 +9,24 @@ class TorrentsRepositoryImpl implements TorrentsRepository {
 
   @override
   Future<List<NyaaTorrentEntity>> fetchTorrents({
-    int page = 1,
-    String query = '',
-    String filter = '0',
-    String category = '0_0',
-    String sort = 'id',
-    String order = 'desc',
+    required int page,
+    required int pageSize,
+    required String searchQuery,
+    required String filterStatus,
+    required String filterCategory,
+    required String sortField,
+    required String sortOrder,
   }) async => await _remoteTorrentsProvider.getTorrents(
-      page: page,
-      query: query,
-      filter: filter,
-      category: category,
-      sort: sort,
-      order: order,
-    );
+    page: page,
+    pageSize: pageSize,
+    searchQuery: searchQuery,
+    filterStatus: filterStatus,
+    filterCategory: filterCategory,
+    sortField: sortField,
+    sortOrder: sortOrder,
+  );
+
+  @override
+  Future<String> downloadTorrent({required String torrentId}) async =>
+      await _remoteTorrentsProvider.downloadTorrent(torrentId: torrentId);
 }

@@ -11,7 +11,8 @@ class ApiConfig {
 
   factory ApiConfig.development() => const ApiConfig(
     baseUrl: 'https://nyaa.si',
-    connectTimeout: Duration(milliseconds: 10000),
+    connectTimeout: Duration(milliseconds: 30000),
+    receiveTimeout: Duration(milliseconds: 18000),
   );
 
   factory ApiConfig.production() => const ApiConfig(
