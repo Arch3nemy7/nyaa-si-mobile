@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nyaa_si_mobile/presentation/dependency_injection.dart';
 import 'core/services/navigation_service/app_router_service.dart';
+import 'presentation/dependency_injection.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

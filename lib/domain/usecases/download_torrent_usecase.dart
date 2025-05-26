@@ -1,9 +1,9 @@
 import '../repositories/torrents_repository.dart';
 
-class DownloadTorrentUseCase {
+class DownloadTorrentUsecase {
   final TorrentsRepository _torrentsRepository;
 
-  DownloadTorrentUseCase(this._torrentsRepository);
+  DownloadTorrentUsecase(this._torrentsRepository);
 
   Future<String> call({required String torrentId}) async =>
       await _torrentsRepository.downloadTorrent(torrentId: torrentId);

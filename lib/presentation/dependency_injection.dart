@@ -63,8 +63,8 @@ Future<void> _initializeUseCases() async {
     ..registerFactory<FetchTorrentsUseCase>(
       () => FetchTorrentsUseCase(serviceLocator<TorrentsRepository>()),
     )
-    ..registerFactory<DownloadTorrentUseCase>(
-      () => DownloadTorrentUseCase(serviceLocator<TorrentsRepository>()),
+    ..registerFactory<DownloadTorrentUsecase>(
+      () => DownloadTorrentUsecase(serviceLocator<TorrentsRepository>()),
     );
 }
 

@@ -1,20 +1,30 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nyaa_si_mobile/domain/entities/nyaa_torrent_entities.dart';
-import 'package:nyaa_si_mobile/presentation/blocs/home/home_bloc.dart';
-import 'package:nyaa_si_mobile/presentation/widgets/torrent_card_widget.dart';
+import 'package:nested/nested.dart';
 
 import '../../../core/constants/constants.dart';
+import '../../../domain/entities/nyaa_torrent_entities.dart';
+import '../../blocs/torrent_download/torrent_download_bloc.dart';
+import '../../blocs/torrent_list/torrent_list_bloc.dart';
+import '../../widgets/torrent_list/torrent_card_widget.dart';
 
 @RoutePage()
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) => BlocProvider<HomeBloc>(
-    create:
-        (BuildContext context) => HomeBloc()..add(const FetchTorrentsEvent()),
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: <SingleChildWidget>[
+      BlocProvider<TorrentListBloc>(
+        create:
+            (BuildContext context) =>
+                TorrentListBloc()..add(const FetchTorrentListEvent()),
+      ),
+      BlocProvider<TorrentDownloadBloc>(
+        create: (BuildContext context) => TorrentDownloadBloc(),
+      ),
+    ],
     child: const _HomePageContent(),
   );
 }
@@ -31,13 +41,13 @@ class _HomePageContentState extends State<_HomePageContent> {
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: const Color(0xFFF8FAFB),
     appBar: _buildAppBar(context),
-    body: BlocBuilder<HomeBloc, HomeState>(
-      builder: (BuildContext context, HomeState state) {
-        if (state is TorrentsLoadingState) {
+    body: BlocBuilder<TorrentListBloc, TorrentListState>(
+      builder: (BuildContext context, TorrentListState state) {
+        if (state is TorrentListLoadingState) {
           return _buildLoadingState();
-        } else if (state is TorrentsLoadedState) {
+        } else if (state is TorrentListLoadedState) {
           return _buildTorrentList(state.torrents);
-        } else if (state is TorrentsErrorState) {
+        } else if (state is TorrentListErrorState) {
           return _buildErrorState(state.error);
         }
         return _buildEmptyState();
@@ -175,7 +185,9 @@ class _HomePageContentState extends State<_HomePageContent> {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () {
-              context.read<HomeBloc>().add(const RefreshTorrentsEvent());
+              context.read<TorrentListBloc>().add(
+                const RefreshTorrentListEvent(),
+              );
             },
             icon: const Icon(
               Icons.refresh_rounded,
@@ -240,7 +252,7 @@ class _HomePageContentState extends State<_HomePageContent> {
   Widget _buildTorrentList(List<NyaaTorrentEntity> torrents) =>
       RefreshIndicator(
         onRefresh: () async {
-          context.read<HomeBloc>().add(const RefreshTorrentsEvent());
+          context.read<TorrentListBloc>().add(const RefreshTorrentListEvent());
         },
         color: nyaaPrimary,
         backgroundColor: Colors.white,

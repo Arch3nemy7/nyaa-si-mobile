@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/constants/constants.dart';
-import '../../domain/entities/nyaa_torrent_entities.dart';
-import '../blocs/home/home_bloc.dart';
+import '../../../core/constants/constants.dart';
+import '../../../domain/entities/nyaa_torrent_entities.dart';
+import '../../blocs/torrent_download/torrent_download_bloc.dart';
 
 class TorrentCardWidget extends StatelessWidget {
   final NyaaTorrentEntity torrent;
@@ -111,52 +111,44 @@ class TorrentCardWidget extends StatelessWidget {
     ],
   );
 
-  Widget _buildActionButtons(BuildContext context) =>
-      BlocConsumer<HomeBloc, HomeState>(
-        listener: (BuildContext context, HomeState state) {
-          if (state is TorrentDownloadedState &&
-              state.torrentId == torrent.id) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Downloaded to: ${state.filePath}'),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 3),
-              ),
-            );
-          } else if (state is TorrentDownloadErrorState &&
-              state.torrentId == torrent.id) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Download failed: ${state.error}'),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 5),
-              ),
-            );
-          }
-        },
-        builder: (BuildContext context, HomeState state) {
-          final bool isDownloading = _isDownloading(state);
+  Widget _buildActionButtons(
+    BuildContext context,
+  ) => BlocConsumer<TorrentDownloadBloc, TorrentDownloadState>(
+    listener: (BuildContext context, TorrentDownloadState state) {
+      if (state is TorrentDownloadSuccess && state.torrentId == torrent.id) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Torrent downloaded successfully. \nFile saved at: Download/Nyaa',
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else if (state is TorrentDownloadFailure &&
+          state.torrentId == torrent.id) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download failed: ${state.error}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    },
+    builder: (BuildContext context, TorrentDownloadState state) {
+      final bool isDownloading =
+          state is TorrentDownloading && state.torrentId == torrent.id;
 
-          return Row(
-            children: <Widget>[
-              Expanded(child: _buildDownloadButton(context, isDownloading)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildMagnetButton()),
-            ],
-          );
-        },
+      return Row(
+        children: <Widget>[
+          Expanded(child: _buildDownloadButton(context, isDownloading)),
+          const SizedBox(width: 8),
+          Expanded(child: _buildMagnetButton()),
+        ],
       );
-
-  bool _isDownloading(HomeState state) {
-    if (state is TorrentsLoadedState) {
-      return state.downloadingTorrents[torrent.id] ?? false;
-    } else if (state is TorrentDownloadedState) {
-      return state.downloadingTorrents[torrent.id] ?? false;
-    } else if (state is TorrentDownloadErrorState) {
-      return state.downloadingTorrents[torrent.id] ?? false;
-    }
-    return false;
-  }
+    },
+  );
 
   Widget _buildDownloadButton(BuildContext context, bool isLoading) => SizedBox(
     height: 32,
@@ -164,7 +156,7 @@ class TorrentCardWidget extends StatelessWidget {
       onPressed:
           isLoading
               ? null
-              : () => context.read<HomeBloc>().add(
+              : () => context.read<TorrentDownloadBloc>().add(
                 DownloadTorrentEvent(torrent: torrent),
               ),
       style: ElevatedButton.styleFrom(
