@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/services/network_service/dio_client.dart';
@@ -68,7 +67,7 @@ class RemoteTorrentsProvider {
       );
 
       if (response.statusCode != 200 || response.data == null) {
-        throw Exception('Failed to download torrent: ${response.statusCode}');
+        throw Exception('${response.statusCode}');
       }
 
       final Uint8List bytes = response.data as Uint8List;
@@ -147,79 +146,35 @@ class RemoteTorrentsProvider {
   ) async {
     Directory directory;
 
-    if (Platform.isAndroid) {
-      try {
-        directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          final Directory? externalDir = await getExternalStorageDirectory();
-          directory = Directory('${externalDir?.path}/Downloads');
-          await directory.create(recursive: true);
-        }
+    try {
+      directory = Directory('/storage/emulated/0/Download');
 
-        final Directory nyaaDir = Directory('${directory.path}/Nyaa');
-        if (!await nyaaDir.exists()) {
-          await nyaaDir.create(recursive: true);
-        }
-
-        if (releaseGroup != null && releaseGroup.isNotEmpty) {
-          final String sanitizedReleaseGroup = _sanitizeDirectoryName(
-            releaseGroup,
-          );
-          final Directory releaseGroupDir = Directory(
-            '${nyaaDir.path}/[$sanitizedReleaseGroup]',
-          );
-          if (!await releaseGroupDir.exists()) {
-            await releaseGroupDir.create(recursive: true);
-          }
-          directory = releaseGroupDir;
-        } else {
-          directory = nyaaDir;
-        }
-      } catch (e) {
-        directory = await getApplicationDocumentsDirectory();
-
-        final Directory nyaaDir = Directory('${directory.path}/Nyaa');
-        if (!await nyaaDir.exists()) {
-          await nyaaDir.create(recursive: true);
-        }
-
-        if (releaseGroup != null && releaseGroup.isNotEmpty) {
-          final String sanitizedReleaseGroup = _sanitizeDirectoryName(
-            releaseGroup,
-          );
-          final Directory releaseGroupDir = Directory(
-            '${nyaaDir.path}/[$sanitizedReleaseGroup]',
-          );
-          if (!await releaseGroupDir.exists()) {
-            await releaseGroupDir.create(recursive: true);
-          }
-          directory = releaseGroupDir;
-        } else {
-          directory = nyaaDir;
-        }
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
       }
-    } else {
-      directory = await getApplicationDocumentsDirectory();
 
       final Directory nyaaDir = Directory('${directory.path}/Nyaa');
       if (!await nyaaDir.exists()) {
         await nyaaDir.create(recursive: true);
       }
 
+      String subDirName;
       if (releaseGroup != null && releaseGroup.isNotEmpty) {
         final String sanitizedReleaseGroup = _sanitizeDirectoryName(
           releaseGroup,
         );
-        final Directory releaseGroupDir = Directory(
-          '${nyaaDir.path}/[$sanitizedReleaseGroup]',
-        );
-        if (!await releaseGroupDir.exists()) {
-          await releaseGroupDir.create(recursive: true);
-        }
-        directory = releaseGroupDir;
+        subDirName = '[$sanitizedReleaseGroup]';
       } else {
-        directory = nyaaDir;
+        subDirName = 'Unknown';
       }
+
+      final Directory subDir = Directory('${nyaaDir.path}/$subDirName');
+      if (!await subDir.exists()) {
+        await subDir.create(recursive: true);
+      }
+      directory = subDir;
+    } catch (e) {
+      throw Exception('$e');
     }
 
     final File file = File('${directory.path}/$fileName');

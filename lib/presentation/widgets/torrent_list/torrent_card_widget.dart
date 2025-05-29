@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/constants/constants.dart';
-import '../../../domain/entities/nyaa_torrent_entities.dart';
+import '../../../domain/entities/nyaa_torrent_entity.dart';
 import '../../blocs/torrent_download/torrent_download_bloc.dart';
 
 class TorrentCardWidget extends StatelessWidget {

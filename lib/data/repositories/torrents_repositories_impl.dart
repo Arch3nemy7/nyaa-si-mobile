@@ -1,4 +1,4 @@
-import '../../domain/entities/nyaa_torrent_entities.dart';
+import '../../domain/entities/nyaa_torrent_entity.dart';
 import '../../domain/repositories/torrents_repository.dart';
 import '../providers/remote_torrents_provider.dart';
 

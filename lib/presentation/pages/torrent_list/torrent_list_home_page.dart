@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nested/nested.dart';
 
 import '../../../core/constants/constants.dart';
-import '../../../domain/entities/nyaa_torrent_entities.dart';
+import '../../../domain/entities/nyaa_torrent_entity.dart';
 import '../../blocs/torrent_download/torrent_download_bloc.dart';
 import '../../blocs/torrent_list/torrent_list_bloc.dart';
 import '../../widgets/appbar/app_bar_widget.dart';

@@ -1,4 +1,4 @@
-import '../../domain/entities/nyaa_torrent_entities.dart';
+import '../../domain/entities/nyaa_torrent_entity.dart';
 
 class NyaaTorrentModel extends NyaaTorrentEntity {
   NyaaTorrentModel({

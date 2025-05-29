@@ -1,4 +1,4 @@
-import '../entities/nyaa_torrent_entities.dart';
+import '../entities/nyaa_torrent_entity.dart';
 
 abstract class TorrentsRepository {
   Future<List<NyaaTorrentEntity>> fetchTorrents({

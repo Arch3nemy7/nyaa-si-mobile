@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/nyaa_torrent_entities.dart';
+import '../../../domain/entities/nyaa_torrent_entity.dart';
 import '../../../domain/usecases/fetch_torrents_usecase.dart';
 import '../../dependency_injection.dart';
 
