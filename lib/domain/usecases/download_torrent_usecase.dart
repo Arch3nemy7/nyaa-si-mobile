@@ -5,6 +5,11 @@ class DownloadTorrentUsecase {
 
   DownloadTorrentUsecase(this._torrentsRepository);
 
-  Future<String> call({required String torrentId}) async =>
-      await _torrentsRepository.downloadTorrent(torrentId: torrentId);
+  Future<String> call({
+    required String torrentId,
+    String? releaseGroup,
+  }) async => await _torrentsRepository.downloadTorrent(
+    torrentId: torrentId,
+    releaseGroup: releaseGroup,
+  );
 }

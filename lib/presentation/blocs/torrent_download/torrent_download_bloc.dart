@@ -29,7 +29,9 @@ class TorrentDownloadBloc
     try {
       final String filePath = await _downloadTorrentUsecase.call(
         torrentId: torrent.id,
+        releaseGroup: torrent.releaseGroup,
       );
+
       emit(TorrentDownloadSuccess(torrentId: torrent.id, filePath: filePath));
     } catch (e) {
       emit(TorrentDownloadFailure(torrentId: torrent.id, error: e.toString()));

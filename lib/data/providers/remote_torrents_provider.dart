@@ -49,7 +49,10 @@ class RemoteTorrentsProvider {
     }
   }
 
-  Future<String> downloadTorrent({required String torrentId}) async {
+  Future<String> downloadTorrent({
+    required String torrentId,
+    String? releaseGroup,
+  }) async {
     try {
       final bool hasPermission = await _requestStoragePermission();
       if (!hasPermission) {
@@ -70,7 +73,11 @@ class RemoteTorrentsProvider {
 
       final Uint8List bytes = response.data as Uint8List;
       final String fileName = _extractFileName(response.headers, torrentId);
-      final String filePath = await _saveToDownloads(bytes, fileName);
+      final String filePath = await _saveToDownloads(
+        bytes,
+        fileName,
+        releaseGroup,
+      );
 
       return filePath;
     } catch (e) {
@@ -133,7 +140,11 @@ class RemoteTorrentsProvider {
     return '$torrentId.torrent';
   }
 
-  Future<String> _saveToDownloads(Uint8List bytes, String fileName) async {
+  Future<String> _saveToDownloads(
+    Uint8List bytes,
+    String fileName,
+    String? releaseGroup,
+  ) async {
     Directory directory;
 
     if (Platform.isAndroid) {
@@ -149,7 +160,21 @@ class RemoteTorrentsProvider {
         if (!await nyaaDir.exists()) {
           await nyaaDir.create(recursive: true);
         }
-        directory = nyaaDir;
+
+        if (releaseGroup != null && releaseGroup.isNotEmpty) {
+          final String sanitizedReleaseGroup = _sanitizeDirectoryName(
+            releaseGroup,
+          );
+          final Directory releaseGroupDir = Directory(
+            '${nyaaDir.path}/[$sanitizedReleaseGroup]',
+          );
+          if (!await releaseGroupDir.exists()) {
+            await releaseGroupDir.create(recursive: true);
+          }
+          directory = releaseGroupDir;
+        } else {
+          directory = nyaaDir;
+        }
       } catch (e) {
         directory = await getApplicationDocumentsDirectory();
 
@@ -157,7 +182,21 @@ class RemoteTorrentsProvider {
         if (!await nyaaDir.exists()) {
           await nyaaDir.create(recursive: true);
         }
-        directory = nyaaDir;
+
+        if (releaseGroup != null && releaseGroup.isNotEmpty) {
+          final String sanitizedReleaseGroup = _sanitizeDirectoryName(
+            releaseGroup,
+          );
+          final Directory releaseGroupDir = Directory(
+            '${nyaaDir.path}/[$sanitizedReleaseGroup]',
+          );
+          if (!await releaseGroupDir.exists()) {
+            await releaseGroupDir.create(recursive: true);
+          }
+          directory = releaseGroupDir;
+        } else {
+          directory = nyaaDir;
+        }
       }
     } else {
       directory = await getApplicationDocumentsDirectory();
@@ -166,7 +205,21 @@ class RemoteTorrentsProvider {
       if (!await nyaaDir.exists()) {
         await nyaaDir.create(recursive: true);
       }
-      directory = nyaaDir;
+
+      if (releaseGroup != null && releaseGroup.isNotEmpty) {
+        final String sanitizedReleaseGroup = _sanitizeDirectoryName(
+          releaseGroup,
+        );
+        final Directory releaseGroupDir = Directory(
+          '${nyaaDir.path}/[$sanitizedReleaseGroup]',
+        );
+        if (!await releaseGroupDir.exists()) {
+          await releaseGroupDir.create(recursive: true);
+        }
+        directory = releaseGroupDir;
+      } else {
+        directory = nyaaDir;
+      }
     }
 
     final File file = File('${directory.path}/$fileName');
@@ -282,4 +335,10 @@ class RemoteTorrentsProvider {
     if (row.classes.contains('danger')) return 'danger';
     return 'default';
   }
+
+  String _sanitizeDirectoryName(String name) =>
+      name
+          .replaceAll(RegExp(r'[<>:"/\\|?*]'), '_')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
 }

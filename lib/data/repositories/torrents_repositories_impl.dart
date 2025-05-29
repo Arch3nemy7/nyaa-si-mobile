@@ -27,6 +27,11 @@ class TorrentsRepositoryImpl implements TorrentsRepository {
   );
 
   @override
-  Future<String> downloadTorrent({required String torrentId}) async =>
-      await _remoteTorrentsProvider.downloadTorrent(torrentId: torrentId);
+  Future<String> downloadTorrent({
+    required String torrentId,
+    String? releaseGroup,
+  }) async => await _remoteTorrentsProvider.downloadTorrent(
+    torrentId: torrentId,
+    releaseGroup: releaseGroup,
+  );
 }

@@ -11,5 +11,5 @@ abstract class TorrentsRepository {
     required String sortOrder,
   });
 
-  Future<String> downloadTorrent({required String torrentId});
+  Future<String> downloadTorrent({required String torrentId, String? releaseGroup});
 }
