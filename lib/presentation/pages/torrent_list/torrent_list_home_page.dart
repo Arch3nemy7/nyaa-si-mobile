@@ -7,6 +7,8 @@ import '../../../core/constants/constants.dart';
 import '../../../domain/entities/nyaa_torrent_entities.dart';
 import '../../blocs/torrent_download/torrent_download_bloc.dart';
 import '../../blocs/torrent_list/torrent_list_bloc.dart';
+import '../../widgets/appbar/app_bar_widget.dart';
+import '../../widgets/appbar/search_bar_widget.dart';
 import '../../widgets/torrent_list/torrent_card_widget.dart';
 
 @RoutePage()
@@ -37,73 +39,82 @@ class _HomePageContent extends StatefulWidget {
 }
 
 class _HomePageContentState extends State<_HomePageContent> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<TorrentListBloc>().add(const LoadMoreTorrentsEvent());
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final double maxScroll = _scrollController.position.maxScrollExtent;
+    final double currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: const Color(0xFFF8FAFB),
-    appBar: _buildAppBar(context),
-    body: BlocBuilder<TorrentListBloc, TorrentListState>(
-      builder: (BuildContext context, TorrentListState state) {
-        if (state is TorrentListLoadingState) {
-          return _buildLoadingState();
-        } else if (state is TorrentListLoadedState) {
-          return _buildTorrentList(state.torrents);
-        } else if (state is TorrentListErrorState) {
-          return _buildErrorState(state.error);
-        }
-        return _buildEmptyState();
-      },
-    ),
-  );
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) => AppBar(
-    title: Row(
+    appBar: buildAppBar(context),
+    body: Column(
       children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: <Color>[nyaaPrimary, nyaaSecondary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(Icons.pets, color: Colors.white, size: 20),
+        BlocBuilder<TorrentListBloc, TorrentListState>(
+          builder: (BuildContext context, TorrentListState state) {
+            final TorrentListBloc bloc = context.read<TorrentListBloc>();
+            return SearchBarWidget(
+              currentSearchQuery: state.searchQuery,
+              currentSortField: state.sortField,
+              currentSortOrder: state.sortOrder,
+              currentFilterStatus: state.filterStatus,
+              currentFilterCategory: state.filterCategory,
+              onSearch:
+                  (String query) => bloc.add(SearchTorrentEvent(query: query)),
+              onSort: (String sortField, String sortOrder) {
+                bloc.add(
+                  SortTorrentEvent(sortField: sortField, sortOrder: sortOrder),
+                );
+              },
+              onStatusFilter: (String filterStatus) {
+                bloc.add(FilterTorrentStatusEvent(filterStatus: filterStatus));
+              },
+              onFilterCategory: (String filterCategory) {
+                bloc.add(
+                  FilterTorrentCategoryEvent(filterCategory: filterCategory),
+                );
+              },
+            );
+          },
         ),
-        const SizedBox(width: 12),
-        const Text(
-          'Nyaa.si',
-          style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 0.3),
+        Expanded(
+          child: BlocBuilder<TorrentListBloc, TorrentListState>(
+            builder: (BuildContext context, TorrentListState state) {
+              if (state is TorrentListLoadingState) {
+                return _buildLoadingState();
+              } else if (state is TorrentListLoadedState) {
+                return _buildTorrentList(state);
+              } else if (state is TorrentListErrorState) {
+                return _buildErrorState(state.errorMessage);
+              }
+              return _buildEmptyState();
+            },
+          ),
         ),
       ],
     ),
-    backgroundColor: Colors.white,
-    foregroundColor: nyaaAccent,
-    elevation: 0,
-    bottom: PreferredSize(
-      preferredSize: const Size.fromHeight(1),
-      child: Container(
-        height: 1,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: <Color>[
-              nyaaPrimary.withValues(alpha: 0.1),
-              nyaaSecondary.withValues(alpha: 0.1),
-            ],
-          ),
-        ),
-      ),
-    ),
-    actions: <Widget>[
-      IconButton(
-        onPressed: () {},
-        icon: const Icon(Icons.search_rounded, color: nyaaPrimary),
-      ),
-      IconButton(
-        onPressed: () {},
-        icon: const Icon(Icons.filter_list_rounded, color: nyaaPrimary),
-      ),
-    ],
   );
 
   Widget _buildLoadingState() => Container(
@@ -238,7 +249,7 @@ class _HomePageContentState extends State<_HomePageContent> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Pull down to refresh or check your connection',
+            'Try adjusting your search or filters',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -249,32 +260,64 @@ class _HomePageContentState extends State<_HomePageContent> {
     ),
   );
 
-  Widget _buildTorrentList(List<NyaaTorrentEntity> torrents) =>
-      RefreshIndicator(
-        onRefresh: () async {
-          context.read<TorrentListBloc>().add(const RefreshTorrentListEvent());
-        },
-        color: nyaaPrimary,
-        backgroundColor: Colors.white,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: <Color>[
-                Colors.white,
-                nyaaPrimary.withValues(alpha: 0.01),
-              ],
-            ),
-          ),
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: torrents.length,
-            itemBuilder: (BuildContext context, int index) {
-              final NyaaTorrentEntity torrent = torrents[index];
-              return TorrentCardWidget(torrent: torrent);
-            },
-          ),
+  Widget _buildTorrentList(TorrentListLoadedState state) => RefreshIndicator(
+    onRefresh: () async {
+      context.read<TorrentListBloc>().add(const RefreshTorrentListEvent());
+    },
+    color: nyaaPrimary,
+    backgroundColor: Colors.white,
+    child: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[Colors.white, nyaaPrimary.withValues(alpha: 0.01)],
         ),
-      );
+      ),
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: state.torrents.length + (state.hasReachedMax ? 0 : 1),
+        itemBuilder: (BuildContext context, int index) {
+          if (index >= state.torrents.length) {
+            return _buildLoadMoreIndicator(state.isLoadingMore);
+          }
+
+          final NyaaTorrentEntity torrent = state.torrents[index];
+          return TorrentCardWidget(torrent: torrent);
+        },
+      ),
+    ),
+  );
+
+  Widget _buildLoadMoreIndicator(bool isLoading) => Container(
+    padding: const EdgeInsets.all(16),
+    child: Center(
+      child:
+          isLoading
+              ? Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: nyaaPrimary.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(nyaaPrimary),
+                  ),
+                ),
+              )
+              : const SizedBox.shrink(),
+    ),
+  );
 }

@@ -68,17 +68,19 @@ class TorrentCardWidget extends StatelessWidget {
   Widget _buildTitleRow(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
+      // Enhanced title styling with better hierarchy
       Text(
         torrent.name,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Colors.grey[800],
-          fontWeight: FontWeight.w600,
-          height: 1.2,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontWeight: FontWeight.w700,
+          height: 1.3,
+          letterSpacing: -0.2,
         ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
-      const SizedBox(height: 4),
+      const SizedBox(height: 6),
       Row(
         children: <Widget>[
           _buildCategoryBadge(),
@@ -227,11 +229,20 @@ class TorrentCardWidget extends StatelessWidget {
     ),
   );
 
-  Widget _buildDateText(BuildContext context) => Text(
-    torrent.date,
-    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-      fontSize: 10,
+  Widget _buildDateText(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: nyaaAccent.withValues(alpha: 0.05),
+      borderRadius: BorderRadius.circular(4),
+      border: Border.all(color: nyaaAccent.withValues(alpha: 0.1), width: 0.5),
+    ),
+    child: Text(
+      torrent.date,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        color: nyaaAccent.withValues(alpha: 0.9),
+        fontSize: 10,
+        fontWeight: FontWeight.w500,
+      ),
     ),
   );
 
