@@ -5,8 +5,8 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../core/services/network_service/dio_client.dart';
-import '../models/nyaa_torrent_model.dart';
+import '../../../core/services/network_service/dio_client.dart';
+import '../../models/nyaa_torrent_model.dart';
 
 class RemoteTorrentsProvider {
   RemoteTorrentsProvider(this.dioClient);

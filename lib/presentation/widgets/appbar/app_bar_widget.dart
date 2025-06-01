@@ -1,6 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/constants.dart';
+import '../../../core/services/navigation_service/app_router_service.gr.dart';
 
 PreferredSizeWidget buildAppBar(BuildContext context) => AppBar(
   title: Row(
@@ -43,7 +45,9 @@ PreferredSizeWidget buildAppBar(BuildContext context) => AppBar(
   ),
   actions: <Widget>[
     IconButton(
-      onPressed: () {},
+      onPressed: () {
+        context.router.push(const DownloadedTorrentHomeRoute());
+      },
       icon: const Icon(Icons.download, color: nyaaPrimary),
     ),
   ],

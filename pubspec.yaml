@@ -1,6 +1,6 @@
 name: nyaa_si_mobile
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -16,9 +16,12 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^9.1.1
   get_it: ^8.0.3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
   html: ^0.15.6
   internet_connection_checker: ^3.0.1
   nested: ^1.0.0
+  path: ^1.9.1
   path_provider: ^2.1.5
   permission_handler: ^12.0.0+1
 
@@ -28,6 +31,10 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
+  hive_generator: ^2.0.1
+
+dependency_overrides:
+  source_gen: ^2.0.0
 
 flutter:
   uses-material-design: true

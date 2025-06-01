@@ -68,7 +68,6 @@ class TorrentCardWidget extends StatelessWidget {
   Widget _buildTitleRow(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      // Enhanced title styling with better hierarchy
       Text(
         torrent.name,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
