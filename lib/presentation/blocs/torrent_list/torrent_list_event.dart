@@ -16,12 +16,12 @@ class RefreshTorrentListEvent extends TorrentListEvent {
 }
 
 class SearchTorrentEvent extends TorrentListEvent {
-  final String query;
+  final String searchQuery;
 
-  const SearchTorrentEvent({required this.query});
+  const SearchTorrentEvent({required this.searchQuery});
 
   @override
-  List<Object?> get props => <Object?>[query];
+  List<Object?> get props => <Object?>[searchQuery];
 }
 
 class SortTorrentEvent extends TorrentListEvent {

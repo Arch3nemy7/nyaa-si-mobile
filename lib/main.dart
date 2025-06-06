@@ -16,13 +16,15 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  @override
-  Widget build(BuildContext context) {
-    final AppRouter appRouter = AppRouter();
+  final AppRouter appRouter = AppRouter();
 
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routerConfig: appRouter.config(),
-    );
-  }
+  @override
+  Widget build(BuildContext context) => MaterialApp.router(
+    debugShowCheckedModeBanner: false,
+    routerConfig: appRouter.config(),
+    theme: ThemeData(
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
+    ),
+  );
 }

@@ -63,12 +63,12 @@ class _HomePageContentState extends State<_HomePageContent> {
     if (!_scrollController.hasClients) return false;
     final double maxScroll = _scrollController.position.maxScrollExtent;
     final double currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll * 0.9);
+    return currentScroll >= (maxScroll * 0.7);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0xFFF8FAFB),
+    backgroundColor: Colors.white,
     appBar: buildAppBar(context),
     body: Column(
       children: <Widget>[
@@ -82,7 +82,8 @@ class _HomePageContentState extends State<_HomePageContent> {
               currentFilterStatus: state.filterStatus,
               currentFilterCategory: state.filterCategory,
               onSearch:
-                  (String query) => bloc.add(SearchTorrentEvent(query: query)),
+                  (String searchQuery) =>
+                      bloc.add(SearchTorrentEvent(searchQuery: searchQuery)),
               onSort: (String sortField, String sortOrder) {
                 bloc.add(
                   SortTorrentEvent(sortField: sortField, sortOrder: sortOrder),
@@ -117,43 +118,34 @@ class _HomePageContentState extends State<_HomePageContent> {
     ),
   );
 
-  Widget _buildLoadingState() => Container(
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: <Color>[Colors.white, nyaaPrimary.withValues(alpha: 0.02)],
-      ),
-    ),
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: nyaaPrimary.withValues(alpha: 0.1),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(nyaaPrimary),
-              strokeWidth: 3,
-            ),
+  Widget _buildLoadingState() => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: nyaaPrimary.withValues(alpha: 0.1),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Loading torrents...',
-            style: TextStyle(color: nyaaAccent, fontWeight: FontWeight.w500),
+          child: const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(nyaaPrimary),
+            strokeWidth: 3,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Loading torrents...',
+          style: TextStyle(color: nyaaAccent, fontWeight: FontWeight.w500),
+        ),
+      ],
     ),
   );
 
@@ -266,27 +258,17 @@ class _HomePageContentState extends State<_HomePageContent> {
     },
     color: nyaaPrimary,
     backgroundColor: Colors.white,
-    child: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: <Color>[Colors.white, nyaaPrimary.withValues(alpha: 0.01)],
-        ),
-      ),
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: state.torrents.length + (state.hasReachedMax ? 0 : 1),
-        itemBuilder: (BuildContext context, int index) {
-          if (index >= state.torrents.length) {
-            return _buildLoadMoreIndicator(state.isLoadingMore);
-          }
+    child: ListView.builder(
+      controller: _scrollController,
+      itemCount: state.torrents.length + (state.hasReachedMax ? 0 : 1),
+      itemBuilder: (BuildContext context, int index) {
+        if (index >= state.torrents.length) {
+          return _buildLoadMoreIndicator(state.isLoadingMore);
+        }
 
-          final NyaaTorrentEntity torrent = state.torrents[index];
-          return TorrentCardWidget(torrent: torrent);
-        },
-      ),
+        final NyaaTorrentEntity torrent = state.torrents[index];
+        return TorrentCardWidget(torrent: torrent);
+      },
     ),
   );
 

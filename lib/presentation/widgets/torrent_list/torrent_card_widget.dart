@@ -14,80 +14,58 @@ class TorrentCardWidget extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
+      color:
+          torrent.torrentStatus == 'danger'
+              ? const Color.fromRGBO(208, 0, 0, 0.12)
+              : torrent.torrentStatus == 'success'
+              ? const Color.fromRGBO(60, 206, 0, 0.12)
+              : nyaaPrimaryContainerBackground,
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: nyaaPrimary.withValues(alpha: 0.08)),
-      boxShadow: <BoxShadow>[
-        BoxShadow(
-          color: nyaaPrimary.withValues(alpha: 0.04),
-          blurRadius: 6,
-          offset: const Offset(0, 1),
-        ),
-      ],
+      border: Border.all(color: nyaaPrimaryBorder),
     ),
-    child: Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _buildHeaderRow(context),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () {},
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _buildHeaderRow(context),
+            if (torrent.releaseGroup != null) ...<Widget>[
               const SizedBox(height: 8),
-              _buildTitleRow(context),
-              const SizedBox(height: 8),
-              _buildStatsRow(context),
-              const SizedBox(height: 8),
-              _buildActionButtons(context),
+              _buildReleaseGroupBadge(),
             ],
-          ),
+            const SizedBox(height: 8),
+            _buildTitleRow(context),
+            const SizedBox(height: 8),
+            _buildSizeInfo(context),
+            const SizedBox(height: 8),
+            _buildStatsRow(context),
+            const SizedBox(height: 8),
+            _buildActionButtons(context),
+          ],
         ),
       ),
     ),
   );
 
   Widget _buildHeaderRow(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      Row(
-        children: <Widget>[
-          _buildStatusBadge(torrent.torrentStatus),
-          if (torrent.releaseGroup != null) ...<Widget>[
-            const SizedBox(width: 8),
-            _buildReleaseGroupBadge(torrent.releaseGroup!),
-          ],
-        ],
-      ),
-      _buildDateText(context),
-    ],
+    children: <Widget>[_buildCategoryBadge(), _buildDateText(context)],
   );
 
-  Widget _buildTitleRow(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      Text(
-        torrent.name,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          color: Theme.of(context).colorScheme.onSurface,
-          fontWeight: FontWeight.w700,
-          height: 1.3,
-          letterSpacing: -0.2,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      const SizedBox(height: 6),
-      Row(
-        children: <Widget>[
-          _buildCategoryBadge(),
-          const SizedBox(width: 8),
-          _buildSizeInfo(context),
-        ],
-      ),
-    ],
+  Widget _buildTitleRow(BuildContext context) => Text(
+    torrent.name,
+    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+      color: Theme.of(context).colorScheme.onSurface,
+      fontWeight: FontWeight.w700,
+      height: 1.3,
+      letterSpacing: -0.2,
+    ),
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
   );
 
   Widget _buildStatsRow(BuildContext context) => Row(
@@ -151,6 +129,104 @@ class TorrentCardWidget extends StatelessWidget {
     },
   );
 
+  Widget _buildDateText(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(4),
+      border: Border.all(color: nyaaPrimaryBorder),
+    ),
+    child: Text(
+      torrent.date,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        fontSize: 10,
+        color: nyaaAccent.withValues(alpha: 0.9),
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+  );
+
+  Widget _buildCategoryBadge() => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(4),
+      border: Border.all(color: nyaaPrimaryBorder),
+    ),
+    child: Text(
+      torrent.category,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 10,
+        color: nyaaAccent.withValues(alpha: 0.9),
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+  );
+
+  Widget _buildReleaseGroupBadge() => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: <Color>[nyaaPrimary, nyaaSecondary],
+      ),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Text(
+      torrent.releaseGroup!,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+      ),
+      overflow: TextOverflow.ellipsis,
+    ),
+  );
+
+  Widget _buildSizeInfo(BuildContext context) => Row(
+    children: <Widget>[
+      const Icon(Icons.storage_outlined, size: 12, color: nyaaAccent),
+      const SizedBox(width: 2),
+      Text(
+        torrent.size,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: nyaaAccent,
+          fontSize: 11,
+        ),
+      ),
+    ],
+  );
+
+  Widget _buildStatChip({
+    required IconData icon,
+    required String value,
+    required Color color,
+  }) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+    decoration: BoxDecoration(
+      color: Color.lerp(Colors.white, color, 0.025),
+      borderRadius: BorderRadius.circular(4),
+      border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 12, color: color),
+        const SizedBox(width: 3),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ],
+    ),
+  );
+
   Widget _buildDownloadButton(BuildContext context, bool isLoading) => SizedBox(
     height: 32,
     child: ElevatedButton(
@@ -193,6 +269,7 @@ class TorrentCardWidget extends StatelessWidget {
     child: OutlinedButton(
       onPressed: () {},
       style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.white,
         side: const BorderSide(color: nyaaPrimary),
         foregroundColor: nyaaPrimary,
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -208,123 +285,4 @@ class TorrentCardWidget extends StatelessWidget {
       ),
     ),
   );
-
-  Widget _buildReleaseGroupBadge(String releaseGroup) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: <Color>[nyaaPrimary, nyaaSecondary],
-      ),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Text(
-      releaseGroup,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 10,
-        fontWeight: FontWeight.w600,
-      ),
-      overflow: TextOverflow.ellipsis,
-    ),
-  );
-
-  Widget _buildDateText(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-    decoration: BoxDecoration(
-      color: nyaaAccent.withValues(alpha: 0.05),
-      borderRadius: BorderRadius.circular(4),
-      border: Border.all(color: nyaaAccent.withValues(alpha: 0.1), width: 0.5),
-    ),
-    child: Text(
-      torrent.date,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: nyaaAccent.withValues(alpha: 0.9),
-        fontSize: 10,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-  );
-
-  Widget _buildCategoryBadge() => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-    decoration: BoxDecoration(
-      color: nyaaAccent.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(3),
-    ),
-    child: Text(
-      torrent.category,
-      style: const TextStyle(
-        fontSize: 9,
-        color: nyaaAccent,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-  );
-
-  Widget _buildSizeInfo(BuildContext context) => Row(
-    children: <Widget>[
-      const Icon(Icons.storage_rounded, size: 12, color: nyaaAccent),
-      const SizedBox(width: 2),
-      Text(
-        torrent.size,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: nyaaAccent,
-          fontSize: 11,
-        ),
-      ),
-    ],
-  );
-
-  Widget _buildStatChip({
-    required IconData icon,
-    required String value,
-    required Color color,
-  }) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Icon(icon, size: 12, color: color),
-        const SizedBox(width: 3),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-      ],
-    ),
-  );
-
-  Widget _buildStatusBadge(String status) {
-    final (Color color, String label) = switch (status) {
-      'success' => (Colors.green[600]!, 'TRUSTED'),
-      'danger' => (Colors.red[600]!, 'REMAKE'),
-      _ => (Colors.grey[600]!, 'NORMAL'),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
-      ),
-    );
-  }
 }

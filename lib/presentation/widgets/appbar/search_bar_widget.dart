@@ -79,9 +79,9 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: nyaaPrimary.withValues(alpha: 0.1)),
+      color: nyaaPrimaryContainerBackground,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: nyaaPrimaryBorder),
       boxShadow: <BoxShadow>[
         BoxShadow(
           color: nyaaPrimary.withValues(alpha: 0.05),
@@ -98,9 +98,9 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
 
   Widget _buildCollapsedSearch() => InkWell(
     onTap: () => setState(() => _isExpanded = true),
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(8),
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: <Widget>[
           Row(
@@ -209,7 +209,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   );
 
   Widget _buildExpandedSearch() => Padding(
-    padding: const EdgeInsets.all(12),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
     child: Column(
       children: <Widget>[
         Row(

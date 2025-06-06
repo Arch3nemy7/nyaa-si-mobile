@@ -26,22 +26,10 @@ PreferredSizeWidget buildAppBar(BuildContext context) => AppBar(
       ),
     ],
   ),
-  backgroundColor: Colors.white,
   foregroundColor: nyaaAccent,
-  elevation: 0,
   bottom: PreferredSize(
     preferredSize: const Size.fromHeight(1),
-    child: Container(
-      height: 1,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: <Color>[
-            nyaaPrimary.withValues(alpha: 0.1),
-            nyaaSecondary.withValues(alpha: 0.1),
-          ],
-        ),
-      ),
-    ),
+    child: Container(height: 1, color: nyaaPrimaryBorder),
   ),
   actions: <Widget>[
     IconButton(

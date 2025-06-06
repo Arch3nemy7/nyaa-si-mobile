@@ -62,7 +62,16 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
         ),
       );
     } catch (e) {
-      emit(TorrentListErrorState(errorMessage: e.toString()));
+      emit(
+        TorrentListErrorState(
+          errorMessage: e.toString(),
+          filterCategory: _defaultFilterCategory,
+          filterStatus: _defaultFilterStatus,
+          sortField: _defaultSortField,
+          sortOrder: _defaultSortOrder,
+          searchQuery: _defaultSearchQuery,
+        ),
+      );
     }
   }
 
@@ -70,33 +79,105 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
     RefreshTorrentListEvent event,
     Emitter<TorrentListState> emit,
   ) async {
-    if (state is! TorrentListLoadedState) {
-      add(const FetchTorrentListEvent());
-      return;
-    }
-
-    final TorrentListLoadedState currentState = state as TorrentListLoadedState;
-
-    try {
-      final List<NyaaTorrentEntity> torrents = await _fetchTorrentsUseCase.call(
-        page: _defaultPage,
-        pageSize: currentState.pageSize,
-        searchQuery: currentState.searchQuery ?? _defaultSearchQuery,
-        filterStatus: currentState.filterStatus ?? _defaultFilterStatus,
-        filterCategory: currentState.filterCategory ?? _defaultFilterCategory,
-        sortField: currentState.sortField ?? _defaultSortField,
-        sortOrder: currentState.sortOrder ?? _defaultSortOrder,
-      );
+    if (state is TorrentListLoadedState) {
+      final TorrentListLoadedState currentState =
+          state as TorrentListLoadedState;
 
       emit(
-        currentState.copyWith(
-          torrents: torrents,
-          page: _defaultPage,
-          hasReachedMax: torrents.length < currentState.pageSize,
+        TorrentListLoadingState(
+          searchQuery: currentState.searchQuery,
+          filterCategory: currentState.filterCategory,
+          filterStatus: currentState.filterStatus,
+          sortField: currentState.sortField,
+          sortOrder: currentState.sortOrder,
         ),
       );
-    } catch (e) {
-      emit(TorrentListErrorState(errorMessage: e.toString()));
+
+      try {
+        final List<NyaaTorrentEntity> torrents = await _fetchTorrentsUseCase
+            .call(
+              page: _defaultPage,
+              pageSize: currentState.pageSize,
+              searchQuery: currentState.searchQuery ?? _defaultSearchQuery,
+              filterStatus: currentState.filterStatus ?? _defaultFilterStatus,
+              filterCategory:
+                  currentState.filterCategory ?? _defaultFilterCategory,
+              sortField: currentState.sortField ?? _defaultSortField,
+              sortOrder: currentState.sortOrder ?? _defaultSortOrder,
+            );
+
+        emit(
+          currentState.copyWith(
+            torrents: torrents,
+            page: _defaultPage,
+            hasReachedMax: torrents.length < currentState.pageSize,
+          ),
+        );
+      } catch (e) {
+        emit(
+          TorrentListErrorState(
+            errorMessage: e.toString(),
+            filterCategory: currentState.filterCategory,
+            filterStatus: currentState.filterStatus,
+            sortField: currentState.sortField,
+            sortOrder: currentState.sortOrder,
+            searchQuery: currentState.searchQuery,
+          ),
+        );
+      }
+    } else if (state is TorrentListErrorState) {
+      final TorrentListErrorState currentState = state as TorrentListErrorState;
+
+      emit(
+        TorrentListLoadingState(
+          searchQuery: currentState.searchQuery,
+          filterCategory: currentState.filterCategory,
+          filterStatus: currentState.filterStatus,
+          sortField: currentState.sortField,
+          sortOrder: currentState.sortOrder,
+        ),
+      );
+
+      try {
+        final List<NyaaTorrentEntity> torrents = await _fetchTorrentsUseCase
+            .call(
+              page: _defaultPage,
+              pageSize: _defaultPageSize,
+              searchQuery: currentState.searchQuery ?? _defaultSearchQuery,
+              filterStatus: currentState.filterStatus ?? _defaultFilterStatus,
+              filterCategory:
+                  currentState.filterCategory ?? _defaultFilterCategory,
+              sortField: currentState.sortField ?? _defaultSortField,
+              sortOrder: currentState.sortOrder ?? _defaultSortOrder,
+            );
+
+        emit(
+          TorrentListLoadedState(
+            torrents: torrents,
+            page: _defaultPage,
+            pageSize: _defaultPageSize,
+            hasReachedMax: torrents.length < _defaultPageSize,
+            filterStatus: currentState.filterStatus,
+            filterCategory: currentState.filterCategory,
+            sortField: currentState.sortField,
+            sortOrder: currentState.sortOrder,
+            searchQuery: currentState.searchQuery,
+          ),
+        );
+      } catch (e) {
+        emit(
+          TorrentListErrorState(
+            errorMessage: e.toString(),
+            filterCategory: currentState.filterCategory,
+            filterStatus: currentState.filterStatus,
+            sortField: currentState.sortField,
+            sortOrder: currentState.sortOrder,
+            searchQuery: currentState.searchQuery,
+          ),
+        );
+      }
+    } else {
+      add(const FetchTorrentListEvent());
     }
   }
 
@@ -154,13 +235,13 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
 
     final TorrentListLoadedState currentState = state as TorrentListLoadedState;
 
-    if (currentState.searchQuery == event.query) {
+    if (currentState.searchQuery == event.searchQuery) {
       return;
     }
 
     emit(
       TorrentListLoadingState(
-        searchQuery: event.query,
+        searchQuery: event.searchQuery,
         filterCategory: currentState.filterCategory,
         filterStatus: currentState.filterStatus,
         sortField: currentState.sortField,
@@ -172,7 +253,7 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
       final List<NyaaTorrentEntity> torrents = await _fetchTorrentsUseCase.call(
         page: _defaultPage,
         pageSize: currentState.pageSize,
-        searchQuery: event.query,
+        searchQuery: event.searchQuery,
         filterStatus: currentState.filterStatus ?? _defaultFilterStatus,
         filterCategory: currentState.filterCategory ?? _defaultFilterCategory,
         sortField: currentState.sortField ?? _defaultSortField,
@@ -183,13 +264,22 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
         currentState.copyWith(
           torrents: torrents,
           page: _defaultPage,
-          searchQuery: event.query,
+          searchQuery: event.searchQuery,
           hasReachedMax: torrents.length < currentState.pageSize,
           isLoadingMore: false,
         ),
       );
     } catch (e) {
-      emit(TorrentListErrorState(errorMessage: e.toString()));
+      emit(
+        TorrentListErrorState(
+          errorMessage: e.toString(),
+          filterCategory: currentState.filterCategory,
+          filterStatus: currentState.filterStatus,
+          sortField: currentState.sortField,
+          sortOrder: currentState.sortOrder,
+          searchQuery: event.searchQuery,
+        ),
+      );
     }
   }
 
@@ -236,7 +326,16 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
         ),
       );
     } catch (e) {
-      emit(TorrentListErrorState(errorMessage: e.toString()));
+      emit(
+        TorrentListErrorState(
+          errorMessage: e.toString(),
+          filterCategory: currentState.filterCategory,
+          filterStatus: currentState.filterStatus,
+          sortField: event.sortField,
+          sortOrder: event.sortOrder,
+          searchQuery: currentState.searchQuery,
+        ),
+      );
     }
   }
 
@@ -287,7 +386,16 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
         ),
       );
     } catch (e) {
-      emit(TorrentListErrorState(errorMessage: e.toString()));
+      emit(
+        TorrentListErrorState(
+          errorMessage: e.toString(),
+          filterCategory: currentState.filterCategory,
+          filterStatus: event.filterStatus,
+          sortField: currentState.sortField,
+          sortOrder: currentState.sortOrder,
+          searchQuery: currentState.searchQuery,
+        ),
+      );
     }
   }
 
@@ -337,7 +445,16 @@ class TorrentListBloc extends Bloc<TorrentListEvent, TorrentListState> {
         ),
       );
     } catch (e) {
-      emit(TorrentListErrorState(errorMessage: e.toString()));
+      emit(
+        TorrentListErrorState(
+          errorMessage: e.toString(),
+          filterCategory: event.filterCategory,
+          filterStatus: currentState.filterStatus,
+          sortField: currentState.sortField,
+          sortOrder: currentState.sortOrder,
+          searchQuery: currentState.searchQuery,
+        ),
+      );
     }
   }
 }
