@@ -2,10 +2,10 @@ import '../../domain/entities/downloaded_torrent_entity.dart';
 import '../../domain/entities/release_group_entity.dart';
 import '../../domain/repositories/downloaded_torrent_repository.dart';
 import '../models/downloaded_torrent_model.dart';
-import '../providers/local/downloaded_torrent_provider.dart';
+import '../providers/local/interfaces/i_downloaded_torrent_provider.dart';
 
 class DownloadedTorrentRepositoryImpl implements DownloadedTorrentRepository {
-  final DownloadedTorrentProvider localDataSource;
+  final IDownloadedTorrentProvider localDataSource;
 
   DownloadedTorrentRepositoryImpl({required this.localDataSource});
 

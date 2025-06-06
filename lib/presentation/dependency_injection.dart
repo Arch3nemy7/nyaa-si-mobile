@@ -4,8 +4,10 @@ import 'package:get_it/get_it.dart';
 
 import '../core/services/network_service/api_config.dart';
 import '../core/services/network_service/dio_client.dart';
-import '../data/providers/local/downloaded_torrent_provider.dart';
-import '../data/providers/remote/remote_torrents_provider.dart';
+import '../data/providers/local/interfaces/i_downloaded_torrent_provider.dart';
+import '../data/providers/local/implements/local_downloaded_torrent_provider.dart';
+import '../data/providers/remote/interfaces/i_torrents_provider.dart';
+import '../data/providers/remote/implements/remote_torrents_provider.dart';
 import '../data/repositories/torrents_repository_impl.dart';
 import '../data/repositories/downloaded_torrent_repository_impl.dart';
 import '../domain/repositories/torrents_repository.dart';
@@ -52,22 +54,22 @@ Future<void> _initializeNetwork() async {
 
 Future<void> _initializeProviders() async {
   serviceLocator
-    ..registerFactory<RemoteTorrentsProvider>(
-      () => RemoteTorrentsProvider(serviceLocator<DioClient>()),
+    ..registerFactory<IRemoteTorrentsProvider>(
+      () => RemoteTorrentsProviderImpl(serviceLocator<DioClient>()),
     )
-    ..registerLazySingleton<DownloadedTorrentProvider>(
-      () => DownloadedTorrentProvider(),
+    ..registerLazySingleton<IDownloadedTorrentProvider>(
+      () => DownloadedTorrentProviderImpl(),
     );
 }
 
 Future<void> _initializeRepositories() async {
   serviceLocator
     ..registerFactory<TorrentsRepository>(
-      () => TorrentsRepositoryImpl(serviceLocator<RemoteTorrentsProvider>()),
+      () => TorrentsRepositoryImpl(serviceLocator<IRemoteTorrentsProvider>()),
     )
     ..registerLazySingleton<DownloadedTorrentRepository>(
       () => DownloadedTorrentRepositoryImpl(
-        localDataSource: serviceLocator<DownloadedTorrentProvider>(),
+        localDataSource: serviceLocator<IDownloadedTorrentProvider>(),
       ),
     );
 }

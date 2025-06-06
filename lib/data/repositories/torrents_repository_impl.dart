@@ -1,9 +1,9 @@
 import '../../domain/entities/nyaa_torrent_entity.dart';
 import '../../domain/repositories/torrents_repository.dart';
-import '../providers/remote/remote_torrents_provider.dart';
+import '../providers/remote/interfaces/i_torrents_provider.dart';
 
 class TorrentsRepositoryImpl implements TorrentsRepository {
-  final RemoteTorrentsProvider _remoteTorrentsProvider;
+  final IRemoteTorrentsProvider _remoteTorrentsProvider;
 
   TorrentsRepositoryImpl(this._remoteTorrentsProvider);
 

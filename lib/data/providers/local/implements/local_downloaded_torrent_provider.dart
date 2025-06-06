@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
-import '../../models/downloaded_torrent_model.dart';
+import '../../../models/downloaded_torrent_model.dart';
+import '../interfaces/i_downloaded_torrent_provider.dart';
 
-class DownloadedTorrentProvider {
+class DownloadedTorrentProviderImpl implements IDownloadedTorrentProvider {
   static const String _nyaaFolderName = 'Nyaa';
 
   Future<String> get _downloadsPath async {
@@ -21,6 +22,7 @@ class DownloadedTorrentProvider {
     return path.join(downloadsPath, _nyaaFolderName);
   }
 
+  @override
   Future<List<DownloadedTorrentModel>> getAllDownloadedTorrents() async {
     try {
       final String nyaaPath = await _nyaaPath;
@@ -93,6 +95,7 @@ class DownloadedTorrentProvider {
     return null;
   }
 
+  @override
   Future<void> deleteTorrent(String torrentId) async {
     try {
       final List<DownloadedTorrentModel> torrents =
@@ -112,6 +115,7 @@ class DownloadedTorrentProvider {
     }
   }
 
+  @override
   Future<void> deleteReleaseGroup(String releaseGroupName) async {
     try {
       final String nyaaPath = await _nyaaPath;
@@ -126,6 +130,7 @@ class DownloadedTorrentProvider {
     }
   }
 
+  @override
   Future<String> saveDownloadedTorrent({
     required String fileName,
     required List<int> bytes,

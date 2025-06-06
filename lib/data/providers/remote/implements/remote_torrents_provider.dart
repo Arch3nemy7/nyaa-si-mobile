@@ -5,13 +5,15 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../core/services/network_service/dio_client.dart';
-import '../../models/nyaa_torrent_model.dart';
+import '../../../../core/services/network_service/dio_client.dart';
+import '../../../models/nyaa_torrent_model.dart';
+import '../interfaces/i_torrents_provider.dart';
 
-class RemoteTorrentsProvider {
-  RemoteTorrentsProvider(this.dioClient);
+class RemoteTorrentsProviderImpl implements IRemoteTorrentsProvider {
+  RemoteTorrentsProviderImpl(this.dioClient);
   final DioClient dioClient;
 
+  @override
   Future<List<NyaaTorrentModel>> getTorrents({
     required int page,
     required int pageSize,
@@ -48,6 +50,7 @@ class RemoteTorrentsProvider {
     }
   }
 
+  @override
   Future<String> downloadTorrent({
     required String torrentId,
     String? releaseGroup,
