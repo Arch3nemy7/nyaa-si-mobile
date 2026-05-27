@@ -8,24 +8,32 @@ Flutter mobile client for [nyaa.si](https://nyaa.si). There is no public API —
 
 Android is the only supported runtime today: downloads are written under a hard-coded `/storage/emulated/0/Download/Nyaa/[ReleaseGroup]/` path, and the local provider throws `Unsupported platform` for anything else. iOS scaffolding exists but the data layer does not work there.
 
+## Flutter SDK / FVM
+
+This project uses [FVM](https://fvm.app/) to pin the Flutter SDK version. The pinned version lives in `.fvmrc` (committed); `.fvm/` is the local SDK symlink and is gitignored. **Always prefix Flutter/Dart invocations with `fvm`** so the project's pinned SDK is used instead of whatever happens to be on `$PATH`.
+
+If `fvm` is not installed: `dart pub global activate fvm`, then `fvm install` from the repo root to fetch the pinned version.
+
 ## Common commands
 
 ```bash
-flutter pub get                    # Install dependencies
-flutter run                        # Run on connected device/emulator (debug)
-flutter run --release              # Release build
-flutter build apk                  # Build Android APK
-flutter analyze                    # Static analysis — strict; lints are tight
-dart format .                      # Format
-flutter clean                      # Wipe build artifacts
+fvm flutter pub get                    # Install dependencies
+fvm flutter run                        # Run on connected device/emulator (debug)
+fvm flutter run --release              # Release build
+fvm flutter build apk                  # Build Android APK
+fvm flutter analyze                    # Static analysis — strict; lints are tight
+fvm dart format .                      # Format
+fvm flutter clean                      # Wipe build artifacts
 ```
 
-Code generation (auto_route routes, Hive type adapters) — required after editing routes in [lib/core/services/navigation_service/app_router_service.dart](lib/core/services/navigation_service/app_router_service.dart) or any `@HiveType` model:
+Code generation (auto_route routes, hive_ce type adapters) — required after editing routes in [lib/core/services/navigation_service/app_router_service.dart](lib/core/services/navigation_service/app_router_service.dart) or any `@HiveType` model:
 
 ```bash
-dart run build_runner build --delete-conflicting-outputs
-dart run build_runner watch --delete-conflicting-outputs   # rebuild on save
+fvm dart run build_runner build      # one-shot
+fvm dart run build_runner watch      # rebuild on save
 ```
+
+(`--delete-conflicting-outputs` is a no-op on `build_runner` 2.9+ — outputs are always overwritten.)
 
 Generated files (`*.g.dart`, `*.gr.dart`, `*.freezed.dart`) are excluded from the analyzer — never hand-edit them.
 
@@ -58,7 +66,7 @@ All wiring lives in [lib/presentation/dependency_injection.dart](lib/presentatio
 
 ### Local data: downloads on the filesystem
 
-The "downloaded torrents" list is not a database — it's a recursive scan of `/storage/emulated/0/Download/Nyaa/`. IDs are derived from `filePath.hashCode.abs().toString()` ([local_downloaded_torrent_provider.dart:80-81](lib/data/providers/local/implements/local_downloaded_torrent_provider.dart#L80-L81)), so a file's "id" changes if it's moved or renamed. The release group is inferred from the directory name one level below `Nyaa/`. Hive is declared as a dependency and `DownloadedTorrentModel` is annotated `@HiveType`, but no box is opened — current persistence is purely file-based; the Hive setup is wired for future use.
+The "downloaded torrents" list is not a database — it's a recursive scan of `/storage/emulated/0/Download/Nyaa/`. IDs are derived from `filePath.hashCode.abs().toString()` ([local_downloaded_torrent_provider.dart:80-81](lib/data/providers/local/implements/local_downloaded_torrent_provider.dart#L80-L81)), so a file's "id" changes if it's moved or renamed. The release group is inferred from the directory name one level below `Nyaa/`. `hive_ce` (community-maintained fork of Hive, since the original `hive` package is unmaintained) is declared as a dependency and `DownloadedTorrentModel` is annotated `@HiveType`, but no box is opened — current persistence is purely file-based; the hive_ce setup is wired for future use.
 
 ### Permissions
 
@@ -67,5 +75,3 @@ Android storage permissions are requested lazily inside `RemoteTorrentsProviderI
 ## Conventions enforced by the analyzer
 
 [analysis_options.yaml](analysis_options.yaml) enables `strict-casts`, `strict-inference`, `strict-raw-types`, plus `always_specify_types`, `require_trailing_commas`, `prefer_single_quotes`, `prefer_const_constructors`, `avoid_print`. Existing code uses explicit type annotations on locals (`final List<NyaaTorrentEntity> torrents = …`, not `final torrents = …`) — match that style or `flutter analyze` will fail.
-
-`pubspec.yaml` pins `dependency_overrides: source_gen: ^2.0.0` to keep `auto_route_generator` and `hive_generator` compatible; don't remove that override without testing both generators.
